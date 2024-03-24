@@ -11,16 +11,6 @@ from sklearn.linear_model import LinearRegression
 # Define your list of models
 model_list = ['Linear Regression', 'Random Forest', 'SVM', 'Neural Network']
 
-# Add a button to the sidebar or main page
-# change_model = st.button('Change Model')
-
-# When the button is clicked, show the dropdown of models
-# if change_model:
-#     selected_model = st.selectbox('Choose a model', model_list)
-
-    # Do something with the selected model
-    # st.write(f"You have selected: {selected_model}")
-
 # Simulate some data
 X = np.random.rand(100, 1) * 10  # Features
 y = 2.5 * X + np.random.randn(100, 1) * 2  # Targets with some noise

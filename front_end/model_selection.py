@@ -16,7 +16,7 @@ def initialize_state(keys_with_defaults):
             st.session_state[key] = default_value
 
 
-def display_model_selection(model_names):
+def display_model_selection(model_names: list):
     # Display buttons for each model
     for name in model_names:
         if st.button(name):
