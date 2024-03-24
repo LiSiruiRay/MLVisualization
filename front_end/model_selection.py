@@ -21,7 +21,7 @@ def display_model_selection(model_names: list):
     for name in model_names:
         if st.button(name):
             st.session_state['selected_model'] = name
-        st.write(f"Info about {name}: This model is known for its accuracy in specific conditions.")
+        # st.write(f"Info about {name}: This model is known for its accuracy in specific conditions.")
 
     # Display the currently selected model
     if st.session_state['selected_model']:
