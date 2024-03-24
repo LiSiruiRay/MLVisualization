@@ -1,6 +1,7 @@
 # Author: ray
 # Date: 3/24/24
 # Description: given data, showing the test result with a slide bar
+import os.path
 
 import plotly.graph_objects as go
 import numpy as np
@@ -43,7 +44,28 @@ def show_test_data(preds: np.ndarray, trues: np.ndarray):
 
 
 if __name__ == "__main__":
-    folder_path = "front_end/test/test_data/seq96_label48_p4000_pati7_epoch10_des-non_stat_sin_sin_Autoformer_ETTm2_ftS_sl96_ll48_pl4000_dm512_nh8_el2_dl1_df2048_fc3_ebtimeF_dtTrue_Exp_0/"
-    preds = np.load(folder_path + 'pred.npy')
-    trues = np.load(folder_path + 'true.npy')
-    show_test_data(preds, trues)
+    # folder_path = "front_end/test/test_data/seq96_label48_p4000_pati7_epoch10_des-non_stat_sin_sin_Autoformer_ETTm2_ftS_sl96_ll48_pl4000_dm512_nh8_el2_dl1_df2048_fc3_ebtimeF_dtTrue_Exp_0/"
+    # folder_path = st.text_input("model name")
+    #
+    # submit_button = st.button("Submit")
+    #
+    # if submit_button:
+    #     preds = np.load(os.path.join("front_end/test/test_data", folder_path, 'pred.npy'))
+    #     trues = np.load(os.path.join("front_end/test/test_data", folder_path, 'true.npy'))
+    #     show_test_data(preds, trues)
+    if 'submit_pressed' not in st.session_state:
+        st.session_state['submit_pressed'] = False
+
+    folder_path = st.text_input("model name")
+
+    submit_button = st.button("Submit")
+
+    if submit_button:
+        # Update the session state to indicate the submit button has been pressed
+        st.session_state['submit_pressed'] = True
+
+    # Check the session state instead of the submit_button directly
+    if st.session_state['submit_pressed']:
+        preds = np.load(os.path.join("front_end/test/test_data", folder_path, 'pred.npy'))
+        trues = np.load(os.path.join("front_end/test/test_data", folder_path, 'true.npy'))
+        show_test_data(preds, trues)
