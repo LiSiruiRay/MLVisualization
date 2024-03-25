@@ -18,13 +18,6 @@ def main():
         # 'expanded': False
     })
 
-    # expand_button_text = 'Show/Hide Selections'
-    # if st.button(expand_button_text):
-    #     st.session_state['expanded'] = not st.session_state['expanded']
-
-    # Conditional rendering of the selection buttons
-    # selected_model = None
-    # if st.session_state['expanded']:
     selected_model = display_model_selection(model_names)
 
     if selected_model:
