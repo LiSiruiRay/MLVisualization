@@ -16,16 +16,27 @@ def initialize_state(keys_with_defaults):
             st.session_state[key] = default_value
 
 
+# def display_model_selection(model_names: list):
+#     # Display buttons for each model
+#     for name in model_names:
+#         if st.button(name):
+#             st.session_state['selected_model'] = name
+#         # st.write(f"Info about {name}: This model is known for its accuracy in specific conditions.")
+#
+#     # Display the currently selected model
+#     if st.session_state['selected_model']:
+#         st.write(f"You have selected: {st.session_state['selected_model']}")
+
+
 def display_model_selection(model_names: list):
-    # Display buttons for each model
-    for name in model_names:
-        if st.button(name):
-            st.session_state['selected_model'] = name
-        # st.write(f"Info about {name}: This model is known for its accuracy in specific conditions.")
+    # Use a select box for model selection
+    selected_model = st.selectbox('Select a Model:', model_names)
+
+    # Update the selected model in the session state
+    st.session_state['selected_model'] = selected_model
 
     # Display the currently selected model
-    if st.session_state['selected_model']:
-        st.write(f"You have selected: {st.session_state['selected_model']}")
+    st.write(f"You have selected: {selected_model}")
 
 
 if __name__ == "__main__":
