@@ -16,7 +16,7 @@ def initialize_state(keys_with_defaults):
             st.session_state[key] = default_value
 
 
-def display_model_selection(model_names: list):
+def display_model_selection(model_names: list) -> str:
     # Use a select box for model selection
     selected_model = st.selectbox('Select a Model:', model_names)
 
@@ -25,6 +25,8 @@ def display_model_selection(model_names: list):
 
     # Display the currently selected model
     st.write(f"You have selected: {selected_model}")
+
+    return selected_model
 
 
 if __name__ == "__main__":
