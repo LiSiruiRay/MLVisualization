@@ -3,6 +3,15 @@
 # Description:
 import subprocess
 
+from dotenv import load_dotenv
+import os
+
+# Load the environment variables from .env file
+load_dotenv()
+
+# Read the USERNAME environment variable
+hpc_user_name = os.getenv('HPC_USERNAME')
+
 
 def sync_hpc_files():
     # Define the rsync command
@@ -10,10 +19,10 @@ def sync_hpc_files():
         "rsync",
         "-avz",
         "--partial",
-        "--progress",
-        "-e", "ssh -i /path/to/your/private/key",  # Specify the path to your SSH private key
-        "user@hostname:/scratch/user/directory/",  # Replace with your HPC username, hostname, and source directory
-        "/local/destination/directory/"  # Replace with your local destination directory
+        "--progress", # TODO: change here
+        "-e", "ssh -i ~/.ssh/id_ed25519",  # Specify the path to your SSH private key
+        f"{hpc_user_name}:/scratch/sl9625/",  # Replace with your HPC username, hostname, and source directory
+        "/Users/ray/rayfile/self-project/research_ml_visualization"  # Replace with your local destination directory
     ]
 
     # Execute the rsync command
