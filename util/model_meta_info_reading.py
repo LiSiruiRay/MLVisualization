@@ -24,13 +24,6 @@ def reading_test_meta_data():
     with open(meta_data_path, "r") as f:
         meta_info = json.load(f)
 
-    # print(meta_info[:5])
-    input_list = [i["input_length"] for i in meta_info]
-    label_length_list = [i["label_length"] for i in meta_info]
-    predict_length_list = [i["predict_length"] for i in meta_info]
-    mse_list = [i["mse"] for i in meta_info]
-    mae_list = [i["mae"] for i in meta_info]
-
     df_dict = defaultdict(list)
 
     for k, v in meta_info[0].items():

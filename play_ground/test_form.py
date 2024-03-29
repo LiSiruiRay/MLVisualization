@@ -8,6 +8,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+
 def initialize_state(keys_with_defaults):
     """Initialize Streamlit session state with default values for given keys"""
     for key, default_value in keys_with_defaults.items():
