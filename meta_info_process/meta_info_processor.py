@@ -3,6 +3,7 @@
 # Description:
 import json
 import os.path
+from typing import List
 
 from util.common import get_proje_root_path
 
@@ -26,6 +27,7 @@ class MetaInfoProcessor:
         self.datasets_info_path = os.path.join(self.all_model_info_folder_path, "meta_info/datasets_info")
         self.model_meta_info_path = os.path.join(self.all_model_info_folder_path, "meta_info/model_meta_info")
         self.model_mate_info_list = list()
+        self._load_all_model_info()
 
     @classmethod
     def _load_one_model_info(cls, single_model_mata_info_path: str):
@@ -40,7 +42,8 @@ class MetaInfoProcessor:
             single_model_mata_info_path = os.path.join(self.model_meta_info_path, each_model_meta_info)
             self.model_mate_info_list.append(MetaInfoProcessor._load_one_model_info(single_model_mata_info_path))
 
-
-    def get_model_list_from_folder_reading(self):
-
-        pass
+    def get_model_list_from_folder_reading(self) -> List[str]:
+        model_list = []
+        for each_model_info in self.model_mate_info_list:
+            model_list.append(each_model_info["model_name"])
+        return model_list
