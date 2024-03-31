@@ -24,6 +24,7 @@ def main():
     selected_model = display_model_selection(model_names)
 
     if selected_model:
+        # refer to http://127.0.0.1:8889/lab/tree/visual_data_set.ipynb
         preds = np.load(os.path.join(proje_root, "hpc_sync_files/results", selected_model, 'pred.npy'))
         trues = np.load(os.path.join(proje_root, "hpc_sync_files/results", selected_model, 'true.npy'))
         show_test_data(preds, trues)
