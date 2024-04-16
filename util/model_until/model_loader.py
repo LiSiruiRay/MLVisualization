@@ -11,7 +11,6 @@ import torch.nn as nn
 from FEDformer.models import Informer, FEDformer, Autoformer, Transformer
 from util.common import get_proje_root_path
 
-
 import logging
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -110,7 +109,8 @@ class ModelLoader:
             use_gpu=True,
             gpu=0,
             use_multi_gpu=data['use_multi_gpu'],
-            devices='0,1'
+            devices='0,1',
+            dataset_id=data['dataset_id']
         )
 
         # Optionally, you can print the namespace to verify it

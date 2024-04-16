@@ -36,5 +36,8 @@ class DataProviderLoader:
 
     def load_load_data_provider(self, flag: str = "test"):
         config_updated_dataset = copy.deepcopy(self.config)
-
-        self.data_set, self.data_loader = data_provider(self.config, flag=flag)
+        dataset_id = config_updated_dataset.dataset_id
+        new_root_path = os.path.join(self.sync_file_path, f"meta_info/datasets_info/")
+        config_updated_dataset.root_path = new_root_path
+        config_updated_dataset.data_path = f"{dataset_id}.csv"
+        self.data_set, self.data_loader = data_provider(config_updated_dataset, flag=flag)
