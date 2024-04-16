@@ -11,6 +11,12 @@ import torch.nn as nn
 from FEDformer.models import Informer, FEDformer, Autoformer, Transformer
 from util.common import get_proje_root_path
 
+
+import logging
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 model_dict = {
     'FEDformer': FEDformer,
     'Autoformer': Autoformer,
@@ -42,7 +48,9 @@ class ModelLoader:
 
         configs = ModelLoader.read_json_and_create_namespace(json_file_path=self.model_meta_info_path)
         model = model_dict[model_name]
+        logger.debug("check if called Autocorrelation used 11111 ! ---")
         self.loaded_model = model.Model(configs)
+        logger.debug("check if called Autocorrelation used ! ---")
         self.loaded_model.load_state_dict(torch.load(model_check_point_path, map_location=device))
 
     @classmethod

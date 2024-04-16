@@ -16,6 +16,7 @@ class MyTestCaseModelLoader(unittest.TestCase):
         model_id = "pure_sin_first_with_meta_script_20240330@03h09m59s_20240330@03h09m59s"
         ml = ModelLoader(model_id=model_id)
         ml.load_model()
+        # 4 times of "Autocorrelation used !" is due to encoder 2 times and decoder 2 times
 
 
 if __name__ == '__main__':
