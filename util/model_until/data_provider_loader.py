@@ -1,6 +1,7 @@
 # Author: ray
 # Date: 4/16/24
 # Description:
+import copy
 import json
 import os
 
@@ -34,4 +35,6 @@ class DataProviderLoader:
         self.config = ModelLoader.read_json_and_create_namespace(json_file_path=self.model_meta_info_path)
 
     def load_load_data_provider(self, flag: str = "test"):
+        config_updated_dataset = copy.deepcopy(self.config)
+
         self.data_set, self.data_loader = data_provider(self.config, flag=flag)
