@@ -4,13 +4,13 @@
 
 import sys
 import os
+import streamlit as st
 
 # Add the project root to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', '..')))
 
 from front_end.model_selection import initialize_state, display_model_selection
 from util.model_meta_info_reading import get_model_list_from_folder_reading
-import streamlit as st
 
 
 def main():
