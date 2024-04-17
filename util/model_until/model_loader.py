@@ -31,6 +31,7 @@ class ModelLoader:
     model_id: str
     meta_info: dict
     model_meta_info_path: str
+    device: torch.device
 
     def __init__(self, model_id: str, sync_file_path: str = "hpc_sync_files"):
         self.model_id = model_id
@@ -51,6 +52,7 @@ class ModelLoader:
         self.loaded_model = model.Model(configs)
         logger.debug("check if called Autocorrelation used ! ---")
         self.loaded_model.load_state_dict(torch.load(model_check_point_path, map_location=device))
+        self.device = device
 
     @classmethod
     def read_json_and_create_namespace(cls, json_file_path: str):
@@ -116,3 +118,18 @@ class ModelLoader:
         # Optionally, you can print the namespace to verify it
         print(namespace)
         return namespace
+
+
+    def predict(self,
+                batch_x,
+                batch_y,
+                batch_x_mark,
+                batch_y_mark,
+
+                pred_len: int = 96,
+                label_len: int = 96,
+                output_attention: bool = False,
+                use_amp: bool = False,
+                features: str = "S",
+                ):
+        pass

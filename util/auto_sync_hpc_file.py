@@ -47,6 +47,6 @@ if __name__ == "__main__":
     proje_root = get_proje_root_path()
     dest_path = os.path.join(proje_root, "hpc_sync_files")
     source_folder = "/scratch/sl9625/FEDformer_meta_script"
-    to_sync_folders = ["checkpoints", "meta_info", "results"]
+    to_sync_folders = ["checkpoints", "meta_info", "results", "test_results"]
     source_paths = [os.path.join(source_folder, to_sync_folder) for to_sync_folder in to_sync_folders]
     [sync_hpc_files(source_path=source_path, dest_path=dest_path) for source_path in source_paths]
