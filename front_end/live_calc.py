@@ -28,10 +28,27 @@ def live_calc_output(meta_info: dict, model):
     end_time = st.date_input("Enter end time", date(2018, 7, 1))
 
     if 'first_time' not in st.session_state:
-        st.session_state.first_time = False
-
-    if st.button("Submit") or not st.session_state.first_time:
         st.session_state.first_time = True
+        # fig.update_layout(
+        #     title='Time Series Plot with Selection Window',
+        #     # yaxis=dict(range=[-500, 500]),
+        #     xaxis=dict(range=[f"{start_time}", f"{end_time}"]),
+        # )
+        # # fig.show()
+        # st.plotly_chart(fig)
+
+    if "first_pressed_submit" not in st.session_state:
+        st.session_state.submit = False
+
+    if st.button("Submit"):
+        if "first_pressed_submit" not in st.session_state:
+            st.session_state.first_pressed_submit = False
+        st.session_state.submit = True
+    else:
+        st.session_state.submit = False
+
+    if st.session_state.submit or st.session_state.first_time:
+        st.session_state.first_time = False
         fig.update_layout(
             title='Time Series Plot with Selection Window',
             # yaxis=dict(range=[-500, 500]),
