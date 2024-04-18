@@ -60,34 +60,8 @@ def live_calc_output(meta_info: dict, model):
                             selected_sub_frame=selected_sub_frame,
                             window_start_point=window_start_point,
                             window_end_point=window_end_point)
-    # fig.add_shape(type="line",
-    #               x0=selected_sub_frame.iloc[window_start_point]["date"],
-    #               y0=min(selected_sub_frame["OT"]),
-    #               x1=selected_sub_frame.iloc[window_start_point]["date"],
-    #               y1=max(selected_sub_frame["OT"]),
-    #               line=dict(color="RoyalBlue", width=3))
-    # fig.add_shape(type="line",
-    #               x0=selected_sub_frame.iloc[window_end_point]["date"],
-    #               y0=min(selected_sub_frame["OT"]),
-    #               x1=selected_sub_frame.iloc[window_end_point]["date"],
-    #               y1=max(selected_sub_frame["OT"]),
-    #               line=dict(color="RoyalBlue", width=3))
-    #
-    # # Add area between lines
-    # fig.add_shape(type="rect",
-    #               x0=selected_sub_frame.iloc[window_start_point]["date"],
-    #               y0=min(selected_sub_frame["OT"]),
-    #               x1=selected_sub_frame.iloc[window_end_point]["date"],
-    #               y1=max(selected_sub_frame["OT"]),
-    #               line=dict(color="RoyalBlue", width=0),
-    #               fillcolor="LightSkyBlue", opacity=0.5)
-    #
-    # fig.update_layout(
-    #     title='Time Series Plot with Selection Window',
-    #     # yaxis=dict(range=[-500, 500]),
-    #     xaxis=dict(range=[f"{st.session_state.start_time}", f"{st.session_state.end_time}"]),
-    # )
     st.plotly_chart(fig)
+
 
 def update_fig_to_show_test(fig, selected_sub_frame, window_start_point, window_end_point):
     fig.add_shape(type="line",
@@ -117,6 +91,7 @@ def update_fig_to_show_test(fig, selected_sub_frame, window_start_point, window_
         # yaxis=dict(range=[-500, 500]),
         xaxis=dict(range=[f"{st.session_state.start_time}", f"{st.session_state.end_time}"]),
     )
+
 
 if __name__ == '__main__':
     proje_root = get_proje_root_path()
