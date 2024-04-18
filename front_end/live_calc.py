@@ -26,18 +26,18 @@ def live_calc_output(meta_info: dict, model):
     fig = go.Figure(data=go.Scatter(x=training_data["date"], y=training_data["OT"], mode='lines'))
     start_time = st.date_input("Enter start time", date(2016, 7, 1))
     end_time = st.date_input("Enter end time", date(2018, 7, 1))
+
+    if 'submit' not in st.session_state:
+        st.session_state.submit = False
+
+    if st.button("Submit"):
+        st.session_state.submit = True
+
     if 'first_time' not in st.session_state:
         st.session_state.first_time = True
-        # fig.update_layout(
-        #     title='Time Series Plot with Selection Window',
-        #     # yaxis=dict(range=[-500, 500]),
-        #     xaxis=dict(range=[f"{start_time}", f"{end_time}"]),
-        # )
-        # # fig.show()
-        # st.plotly_chart(fig)
 
-    # first_time = True
-    # if first_time:
+    # if st.button("Submit") or not st.session_state.first_time:
+    #     st.session_state.first_time = False
     #     fig.update_layout(
     #         title='Time Series Plot with Selection Window',
     #         # yaxis=dict(range=[-500, 500]),
@@ -45,15 +45,14 @@ def live_calc_output(meta_info: dict, model):
     #     )
     #     # fig.show()
     #     st.plotly_chart(fig)
-    if st.button("Submit") or not st.session_state.first_time:
-        st.session_state.first_time = False
+
+    if st.session_state.submit:
         fig.update_layout(
             title='Time Series Plot with Selection Window',
-            # yaxis=dict(range=[-500, 500]),
             xaxis=dict(range=[f"{start_time}", f"{end_time}"]),
         )
-    # fig.show()
         st.plotly_chart(fig)
+
     # else:
     #     print(f"hi")
     # TODO: fix the end point, calculation based on input data needed
@@ -61,13 +60,11 @@ def live_calc_output(meta_info: dict, model):
     end_index = 100
     new_data_variance = st.slider('Test data index', start_index, end_index)
 
-
-
     # Create a submit button
 
-        # # Display the input after the button is clicked
-        # st.write("First input: ", input1)
-        # st.write("Second input: ", input2)
+    # # Display the input after the button is clicked
+    # st.write("First input: ", input1)
+    # st.write("Second input: ", input2)
 
 
 if __name__ == '__main__':
