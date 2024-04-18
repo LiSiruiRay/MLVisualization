@@ -60,6 +60,8 @@ def live_calc_output(meta_info: dict, model):
                             selected_sub_frame=selected_sub_frame,
                             window_start_point=window_start_point,
                             window_end_point=window_end_point)
+    input_for_test = selected_sub_frame.iloc[window_start_point:window_end_point] # data_x and data_y
+
     st.plotly_chart(fig)
 
 
