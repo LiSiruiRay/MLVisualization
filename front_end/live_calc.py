@@ -29,53 +29,23 @@ def live_calc_output(meta_info: dict, model):
 
     if 'first_time' not in st.session_state:
         st.session_state.first_time = True
-        # fig.update_layout(
-        #     title='Time Series Plot with Selection Window',
-        #     # yaxis=dict(range=[-500, 500]),
-        #     xaxis=dict(range=[f"{start_time}", f"{end_time}"]),
-        # )
-        # # fig.show()
-        # st.plotly_chart(fig)
 
-    if "first_pressed_submit" not in st.session_state:
-        st.session_state.submit = False
-
-    if st.button("Submit"):
-        if "first_pressed_submit" not in st.session_state:
-            st.session_state.first_pressed_submit = False
-        st.session_state.submit = True
-    else:
-        st.session_state.submit = False
-
-    if st.session_state.submit or st.session_state.first_time:
+    if st.button("Submit") or st.session_state.first_time:
+        st.session_state.start_time = start_time
+        st.session_state.end_time = end_time
         st.session_state.first_time = False
-        fig.update_layout(
-            title='Time Series Plot with Selection Window',
-            # yaxis=dict(range=[-500, 500]),
-            xaxis=dict(range=[f"{start_time}", f"{end_time}"]),
-        )
-        # fig.show()
-        st.plotly_chart(fig)
-    #
-    # if st.session_state.submit:
-    #     fig.update_layout(
-    #         title='Time Series Plot with Selection Window',
-    #         xaxis=dict(range=[f"{start_time}", f"{end_time}"]),
-    #     )
-    #     st.plotly_chart(fig)
 
-    # else:
-    #     print(f"hi")
     # TODO: fix the end point, calculation based on input data needed
     start_index = 0
     end_index = 100
     new_data_variance = st.slider('Test data index', start_index, end_index)
-
-    # Create a submit button
-
-    # # Display the input after the button is clicked
-    # st.write("First input: ", input1)
-    # st.write("Second input: ", input2)
+    fig.update_layout(
+        title='Time Series Plot with Selection Window',
+        # yaxis=dict(range=[-500, 500]),
+        xaxis=dict(range=[f"{st.session_state.start_time}", f"{st.session_state.end_time}"]),
+    )
+    # fig.show()
+    st.plotly_chart(fig)
 
 
 if __name__ == '__main__':
