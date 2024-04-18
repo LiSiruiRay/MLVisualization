@@ -26,38 +26,26 @@ def live_calc_output(meta_info: dict, model):
     fig = go.Figure(data=go.Scatter(x=training_data["date"], y=training_data["OT"], mode='lines'))
     start_time = st.date_input("Enter start time", date(2016, 7, 1))
     end_time = st.date_input("Enter end time", date(2018, 7, 1))
-    if "count" not in st.session_state:
-        st.session_state.count = 1
-    else:
-        st.session_state.count += 1
-
-    print(f"program counter: {st.session_state.count}")
-
-    if 'submit' not in st.session_state:
-        st.session_state.submit = False
-
-    if st.button("Submit"):
-        st.session_state.submit = True
 
     if 'first_time' not in st.session_state:
+        st.session_state.first_time = False
+
+    if st.button("Submit") or not st.session_state.first_time:
         st.session_state.first_time = True
-
-    # if st.button("Submit") or not st.session_state.first_time:
-    #     st.session_state.first_time = False
-    #     fig.update_layout(
-    #         title='Time Series Plot with Selection Window',
-    #         # yaxis=dict(range=[-500, 500]),
-    #         xaxis=dict(range=[f"{start_time}", f"{end_time}"]),
-    #     )
-    #     # fig.show()
-    #     st.plotly_chart(fig)
-
-    if st.session_state.submit:
         fig.update_layout(
             title='Time Series Plot with Selection Window',
+            # yaxis=dict(range=[-500, 500]),
             xaxis=dict(range=[f"{start_time}", f"{end_time}"]),
         )
+        # fig.show()
         st.plotly_chart(fig)
+    #
+    # if st.session_state.submit:
+    #     fig.update_layout(
+    #         title='Time Series Plot with Selection Window',
+    #         xaxis=dict(range=[f"{start_time}", f"{end_time}"]),
+    #     )
+    #     st.plotly_chart(fig)
 
     # else:
     #     print(f"hi")
