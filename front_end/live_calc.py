@@ -26,6 +26,12 @@ def live_calc_output(meta_info: dict, model):
     fig = go.Figure(data=go.Scatter(x=training_data["date"], y=training_data["OT"], mode='lines'))
     start_time = st.date_input("Enter start time", date(2016, 7, 1))
     end_time = st.date_input("Enter end time", date(2018, 7, 1))
+    if "count" not in st.session_state:
+        st.session_state.count = 1
+    else:
+        st.session_state.count += 1
+
+    print(f"program counter: {st.session_state.count}")
 
     if 'submit' not in st.session_state:
         st.session_state.submit = False
