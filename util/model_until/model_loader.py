@@ -119,17 +119,5 @@ class ModelLoader:
         print(namespace)
         return namespace
 
-
-    def predict(self,
-                batch_x,
-                batch_y,
-                batch_x_mark,
-                batch_y_mark,
-
-                pred_len: int = 96,
-                label_len: int = 96,
-                output_attention: bool = False,
-                use_amp: bool = False,
-                features: str = "S",
-                ):
+    def predict(self, input_data):
         pass

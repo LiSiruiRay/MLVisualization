@@ -61,6 +61,8 @@ def live_calc_output(meta_info: dict, model):
                             window_start_point=window_start_point,
                             window_end_point=window_end_point)
     input_for_test = selected_sub_frame.iloc[window_start_point:window_end_point] # data_x and data_y
+    # print(input_for_test["OT"])
+    print(type(input_for_test["OT"]))
 
     st.plotly_chart(fig)
 
