@@ -10,7 +10,7 @@ from torch.utils.data import Dataset, DataLoader
 
 from FEDformer.data_provider.data_factory import data_provider
 from util.common import get_proje_root_path
-from util.model_until.model_loader import ModelLoader
+from util.data_set import read_json_and_create_namespace
 
 
 class DataProviderLoader:
@@ -32,7 +32,7 @@ class DataProviderLoader:
         with open(self.model_meta_info_path, "r") as f:
             self.meta_info = json.load(f)
 
-        self.config = ModelLoader.read_json_and_create_namespace(json_file_path=self.model_meta_info_path)
+        self.config = read_json_and_create_namespace(json_file_path=self.model_meta_info_path)
 
     def load_load_data_provider(self, flag: str = "test"):
         config_updated_dataset = copy.deepcopy(self.config)
