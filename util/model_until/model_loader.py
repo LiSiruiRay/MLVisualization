@@ -62,15 +62,20 @@ class ModelLoader:
         seq_len = self.meta_info['seq_len']
         label_len = self.meta_info['label_len']
         pred_len = self.meta_info['pred_len']
+        print(f"seq_len: {seq_len}, label_len: {label_len}, pred_len: {pred_len}")
         s_begin = 0
         s_end = s_begin + seq_len
         r_begin = s_end - label_len
         r_end = r_begin + label_len + pred_len
 
+        print(f"s_end: {s_end}, r_begin: {r_begin}, r_end: {r_end}")
+
         seq_x = input_data[s_begin:s_end]
         seq_y = input_data[r_begin:r_end]
         seq_x_mark = data_stamp[s_begin:s_end]
         seq_y_mark = data_stamp[r_begin:r_end]
+
+        print(f"seq_x len: {len(seq_x)}, seq_y len: {len(seq_y)}")
 
         return seq_x, seq_y, seq_x_mark, seq_y_mark
 
@@ -91,8 +96,8 @@ class ModelLoader:
                         batch_y_mark,
                         model,
                         device,
-                        pred_len: int = 720,
-                        label_len: int = 96,
+                        pred_len: int,
+                        label_len: int,
                         output_attention: bool = False,
                         use_amp: bool = False,
                         features: str = "S",
@@ -101,7 +106,7 @@ class ModelLoader:
         extracted from source code
         """
         batch_x = batch_x.float().to(device)
-        batch_y = batch_y.float()
+        batch_y = batch_y.float().to(device)
         batch_x_mark = batch_x_mark.float().to(device)
         batch_y_mark = batch_y_mark.float().to(device)
 
@@ -133,7 +138,7 @@ class ModelLoader:
     def predict(self, input_data: DataFrame, dpl: DataProviderLoader):
         scaler = dpl.data_set.scaler
         # TODO: might not be scaled, do this later
-        normalized_input = scaler.transform(input_data["OT"].values)
+        normalized_input = scaler.transform(input_data["OT"].values.reshape(-1, 1))
 
         df_raw = input_data
 
@@ -150,19 +155,26 @@ class ModelLoader:
         data_stamp = df_stamp.drop(['date'], 1).values
 
         # TODO: better name for input_data in the definition of the get_input_dates
-        seq_x, seq_y, seq_x_mark, seq_y_mark = self.get_input_dates(normalized_input, df_stamp)
+        seq_x, seq_y, seq_x_mark, seq_y_mark = self.get_input_dates(normalized_input, data_stamp)
 
         batch_x = self.get_batch(seq_x)
         batch_y = self.get_batch(seq_y)
         batch_x_mark = self.get_batch(seq_x_mark)
         batch_y_mark = self.get_batch(seq_y_mark)
 
+        self.batch_x = batch_x
+        self.batch_y = batch_y
+        self.batch_x_mark = batch_x_mark
+        self.batch_y_mark = batch_y_mark
+
         pred = ModelLoader.general_predict(batch_x=batch_x,
                                            batch_y=batch_y,
                                            batch_x_mark=batch_x_mark,
                                            batch_y_mark=batch_y_mark,
                                            model=self.loaded_model,
-                                           device=self.device, )
+                                           device=self.device,
+                                           pred_len=self.meta_info['seq_len'],
+                                           label_len=self.meta_info['label_len'],)
 
         # scaler.inverse_transform(pred.values)
         return scaler.inverse_transform(pred.values)
