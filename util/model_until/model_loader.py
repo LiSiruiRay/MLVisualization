@@ -62,12 +62,21 @@ class ModelLoader:
         seq_len = self.meta_info['seq_len']
         label_len = self.meta_info['label_len']
         pred_len = self.meta_info['pred_len']
+
+        self.testing_seq_len = seq_len
+        self.testing_label_len = label_len
+        self.testing_pred_len = pred_len
         print(f"seq_len: {seq_len}, label_len: {label_len}, pred_len: {pred_len}")
+
         s_begin = 0
         s_end = s_begin + seq_len
         r_begin = s_end - label_len
         r_end = r_begin + label_len + pred_len
 
+        self.testing_s_begin = s_begin
+        self.testing_s_end = s_end
+        self.testing_r_begin = r_begin
+        self.testing_r_end = r_end
         print(f"s_end: {s_end}, r_begin: {r_begin}, r_end: {r_end}")
 
         seq_x = input_data[s_begin:s_end]
@@ -75,6 +84,10 @@ class ModelLoader:
         seq_x_mark = data_stamp[s_begin:s_end]
         seq_y_mark = data_stamp[r_begin:r_end]
 
+        self.testing_seq_x = seq_x
+        self.testing_seq_y = seq_y
+        self.testing_seq_x_mark = seq_x_mark
+        self.testing_seq_y_mark = seq_y_mark
         print(f"seq_x len: {len(seq_x)}, seq_y len: {len(seq_y)}")
 
         return seq_x, seq_y, seq_x_mark, seq_y_mark
