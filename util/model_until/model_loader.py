@@ -5,13 +5,17 @@ import json
 import argparse
 import os
 
+import pandas as pd
 import torch
 import torch.nn as nn
+from pandas import Series, DataFrame
 
 from FEDformer.models import Informer, FEDformer, Autoformer, Transformer
 from util.common import get_proje_root_path
 
 import logging
+
+from util.model_until.data_provider_loader import DataProviderLoader
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -119,5 +123,111 @@ class ModelLoader:
         print(namespace)
         return namespace
 
-    def predict(self, input_data):
-        pass
+    def get_input_dates(self, input_data: DataFrame, data_stamp):
+        seq_len = self.meta_info['seq_len']
+        label_len = self.meta_info['label_len']
+        pred_len = self.meta_info['pred_len']
+        s_begin = 0
+        s_end = s_begin + seq_len
+        r_begin = s_end - label_len
+        r_end = r_begin + label_len + pred_len
+
+        seq_x = input_data[s_begin:s_end]
+        seq_y = input_data[r_begin:r_end]
+        seq_x_mark = data_stamp[s_begin:s_end]
+        seq_y_mark = data_stamp[r_begin:r_end]
+
+        return seq_x, seq_y, seq_x_mark, seq_y_mark
+
+    @classmethod
+    def get_batch(cls, raw_data):
+        """
+        simulate the dataloader process but when use only 1 vector, batch should have length 1
+        """
+        batched = torch.tensor(raw_data, dtype=torch.float32)
+        batched = batched.unsqueeze(0)
+        return batched
+
+    @classmethod
+    def general_predict(cls,
+                        batch_x,
+                        batch_y,
+                        batch_x_mark,
+                        batch_y_mark,
+                        model,
+                        device,
+                        pred_len: int = 720,
+                        label_len: int = 96,
+                        output_attention: bool = False,
+                        use_amp: bool = False,
+                        features: str = "S",
+                        ):
+        """
+        extracted from source code
+        """
+        batch_x = batch_x.float().to(device)
+        batch_y = batch_y.float()
+        batch_x_mark = batch_x_mark.float().to(device)
+        batch_y_mark = batch_y_mark.float().to(device)
+
+        # decoder input
+        dec_inp = torch.zeros_like(batch_y[:, -pred_len:, :]).float()  # mask
+        dec_inp = torch.cat([batch_y[:, :label_len, :], dec_inp], dim=1).float().to(device)
+
+        # encoder - decoder
+
+        # TODO: use_amp default is false, but might be true
+        # TODO: output_attention default is false, but might be true
+
+        def _run_model():
+            outputs = model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+            if output_attention:
+                outputs = outputs[0]
+            return outputs
+
+        if use_amp:
+            with torch.cuda.amp.autocast():
+                outputs = _run_model()
+        else:
+            outputs = _run_model()
+
+        pred = outputs.detach().cpu().numpy()
+
+        return pred
+
+    def predict(self, input_data: DataFrame, dpl: DataProviderLoader):
+        scaler = dpl.data_set.scaler
+        # TODO: might not be scaled, do this later
+        normalized_input = scaler.transform(input_data["OT"].values)
+
+        df_raw = input_data
+
+        df_stamp = df_raw[['date']]
+        df_stamp['date'] = pd.to_datetime(df_stamp.date)
+
+        # TODO: data_stamp have different cases, default 0
+        df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
+        df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
+        df_stamp['weekday'] = df_stamp.date.apply(lambda row: row.weekday(), 1)
+        df_stamp['hour'] = df_stamp.date.apply(lambda row: row.hour, 1)
+        df_stamp['minute'] = df_stamp.date.apply(lambda row: row.minute, 1)
+        df_stamp['minute'] = df_stamp.minute.map(lambda x: x // 15)
+        data_stamp = df_stamp.drop(['date'], 1).values
+
+        # TODO: better name for input_data in the definition of the get_input_dates
+        seq_x, seq_y, seq_x_mark, seq_y_mark = self.get_input_dates(normalized_input, df_stamp)
+
+        batch_x = self.get_batch(seq_x)
+        batch_y = self.get_batch(seq_y)
+        batch_x_mark = self.get_batch(seq_x_mark)
+        batch_y_mark = self.get_batch(seq_y_mark)
+
+        pred = ModelLoader.general_predict(batch_x=batch_x,
+                                           batch_y=batch_y,
+                                           batch_x_mark=batch_x_mark,
+                                           batch_y_mark=batch_y_mark,
+                                           model=self.loaded_model,
+                                           device=self.device, )
+
+        # scaler.inverse_transform(pred.values)
+        return scaler.inverse_transform(pred.values)
