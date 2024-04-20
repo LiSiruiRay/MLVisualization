@@ -65,21 +65,10 @@ class ModelLoader:
         label_len = self.meta_info['label_len']
         pred_len = self.meta_info['pred_len']
 
-        self.testing_seq_len = seq_len
-        self.testing_label_len = label_len
-        self.testing_pred_len = pred_len
-        print(f"seq_len: {seq_len}, label_len: {label_len}, pred_len: {pred_len}")
-
         s_begin = 0
         s_end = s_begin + seq_len
         r_begin = s_end - label_len
         r_end = r_begin + label_len + pred_len
-
-        self.testing_s_begin = s_begin
-        self.testing_s_end = s_end
-        self.testing_r_begin = r_begin
-        self.testing_r_end = r_end
-        print(f"s_end: {s_end}, r_begin: {r_begin}, r_end: {r_end}")
 
         seq_x = input_data[s_begin:s_end]
         seq_y = input_data[r_begin:r_end]
@@ -91,12 +80,6 @@ class ModelLoader:
 
         seq_x_mark = data_stamp[s_begin:s_end]
         seq_y_mark = data_stamp[r_begin:r_end]
-
-        self.testing_seq_x = seq_x
-        self.testing_seq_y = seq_y
-        self.testing_seq_x_mark = seq_x_mark
-        self.testing_seq_y_mark = seq_y_mark
-        print(f"seq_x len: {len(seq_x)}, seq_y len: {len(seq_y)}")
 
         return seq_x, seq_y, seq_x_mark, seq_y_mark
 
@@ -166,21 +149,11 @@ class ModelLoader:
         df_stamp = df_raw[['date']]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
 
-        # TODO: data_stamp have different cases, default 0
-        # df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
-        # df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
-        # df_stamp['weekday'] = df_stamp.date.apply(lambda row: row.weekday(), 1)
-        # df_stamp['hour'] = df_stamp.date.apply(lambda row: row.hour, 1)
-        # df_stamp['minute'] = df_stamp.date.apply(lambda row: row.minute, 1)
-        # df_stamp['minute'] = df_stamp.minute.map(lambda x: x // 15)
-        self.df_stamp = df_stamp
+        # TODO: data_stamp have different cases, default 1
         df_stamp = concat_time_series(df_stamp=df_stamp, n=self.meta_info["pred_len"])
-        # data_stamp = df_stamp.drop(['date'], 1).values
-        # self.data_stamp = data_stamp
 
         data_stamp = time_features(pd.to_datetime(df_stamp['date'].values), freq='h')
         data_stamp = data_stamp.transpose(1, 0)
-        self.data_stamp = data_stamp
 
         # TODO: better name for input_data in the definition of the get_input_dates
         seq_x, seq_y, seq_x_mark, seq_y_mark = self.get_input_dates(normalized_input, data_stamp)
@@ -189,11 +162,6 @@ class ModelLoader:
         batch_y = self.get_batch(seq_y)
         batch_x_mark = self.get_batch(seq_x_mark)
         batch_y_mark = self.get_batch(seq_y_mark)
-
-        self.batch_x = batch_x
-        self.batch_y = batch_y
-        self.batch_x_mark = batch_x_mark
-        self.batch_y_mark = batch_y_mark
 
         pred = ModelLoader.general_predict(batch_x=batch_x,
                                            batch_y=batch_y,
@@ -204,7 +172,5 @@ class ModelLoader:
                                            pred_len=self.meta_info['seq_len'],
                                            label_len=self.meta_info['label_len'], )
 
-        # scaler.inverse_transform(pred.values)
-        self.pred = pred
         pred = pred.reshape((self.meta_info["pred_len"], 1))
         return scaler.inverse_transform(pred)
