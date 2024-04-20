@@ -4,17 +4,19 @@
 import json
 import os
 
+import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 from pandas import DataFrame
 
 from FEDformer.models import Informer, FEDformer, Autoformer, Transformer
+from FEDformer.utils.timefeatures import time_features
 from util.common import get_proje_root_path
 
 import logging
 
-from util.data_set import read_json_and_create_namespace
+from util.data_set import read_json_and_create_namespace, concat_time_series
 from util.model_until.data_provider_loader import DataProviderLoader
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -81,6 +83,12 @@ class ModelLoader:
 
         seq_x = input_data[s_begin:s_end]
         seq_y = input_data[r_begin:r_end]
+        seq_y_expected_length = r_end - r_begin
+        seq_y_actual_length = len(seq_y)
+
+        array_zeros = np.zeros((seq_y_expected_length - seq_y_actual_length, 1))
+        seq_y = np.concatenate((seq_y, array_zeros), axis=0)
+
         seq_x_mark = data_stamp[s_begin:s_end]
         seq_y_mark = data_stamp[r_begin:r_end]
 
@@ -159,13 +167,20 @@ class ModelLoader:
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
 
         # TODO: data_stamp have different cases, default 0
-        df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
-        df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
-        df_stamp['weekday'] = df_stamp.date.apply(lambda row: row.weekday(), 1)
-        df_stamp['hour'] = df_stamp.date.apply(lambda row: row.hour, 1)
-        df_stamp['minute'] = df_stamp.date.apply(lambda row: row.minute, 1)
-        df_stamp['minute'] = df_stamp.minute.map(lambda x: x // 15)
-        data_stamp = df_stamp.drop(['date'], 1).values
+        # df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
+        # df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
+        # df_stamp['weekday'] = df_stamp.date.apply(lambda row: row.weekday(), 1)
+        # df_stamp['hour'] = df_stamp.date.apply(lambda row: row.hour, 1)
+        # df_stamp['minute'] = df_stamp.date.apply(lambda row: row.minute, 1)
+        # df_stamp['minute'] = df_stamp.minute.map(lambda x: x // 15)
+        self.df_stamp = df_stamp
+        df_stamp = concat_time_series(df_stamp=df_stamp, n=self.meta_info["pred_len"])
+        # data_stamp = df_stamp.drop(['date'], 1).values
+        # self.data_stamp = data_stamp
+
+        data_stamp = time_features(pd.to_datetime(df_stamp['date'].values), freq='h')
+        data_stamp = data_stamp.transpose(1, 0)
+        self.data_stamp = data_stamp
 
         # TODO: better name for input_data in the definition of the get_input_dates
         seq_x, seq_y, seq_x_mark, seq_y_mark = self.get_input_dates(normalized_input, data_stamp)
@@ -187,7 +202,9 @@ class ModelLoader:
                                            model=self.loaded_model,
                                            device=self.device,
                                            pred_len=self.meta_info['seq_len'],
-                                           label_len=self.meta_info['label_len'],)
+                                           label_len=self.meta_info['label_len'], )
 
         # scaler.inverse_transform(pred.values)
-        return scaler.inverse_transform(pred.values)
+        self.pred = pred
+        pred = pred.reshape((self.meta_info["pred_len"], 1))
+        return scaler.inverse_transform(pred)

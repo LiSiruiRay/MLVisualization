@@ -22,7 +22,7 @@ def read_training_ds_by_meta(meta_info: dict, root_path: str = None):
     return read_training_ds(meta_info["dataset_id"], root_path)
 
 
-def sub_frame(df, start_date: str, end_date: str): # df must be sorted
+def sub_frame(df, start_date: str, end_date: str):  # df must be sorted
     df['date'] = pd.to_datetime(df['date'])
 
     # Use searchsorted to find the start and end indices
@@ -32,6 +32,18 @@ def sub_frame(df, start_date: str, end_date: str): # df must be sorted
     # Use the indices to slice the DataFrame
     filtered_df = df.iloc[start_idx:end_idx]
     return filtered_df
+
+
+def concat_time_series(df_stamp: pd.DataFrame, n: int, freq="15T") -> pd.DataFrame:
+    # Generate new timestamps starting from the last timestamp in df_stamp + 15 minutes
+    new_dates = pd.date_range(start=df_stamp['date'].iloc[-1] + pd.Timedelta(minutes=15), periods=n, freq='15T')
+
+    # Create a DataFrame with the new dates
+    new_df = pd.DataFrame(new_dates, columns=['date'])
+
+    # Append the new DataFrame to the original DataFrame
+    df_stamp = pd.concat([df_stamp, new_df], ignore_index=True)
+    return df_stamp
 
 
 def read_json_and_create_namespace(json_file_path: str):
