@@ -29,33 +29,9 @@ logger = logging.getLogger(__name__)
 
 def live_calc_output(meta_info: dict, ml: ModelLoader, dpl: DataProviderLoader):
     training_data = read_training_ds_by_meta(meta_info=meta_info)
-    # start_time = st.date_input("Enter start time", date(2016, 7, 1))
-    # end_time = st.date_input("Enter end time", date(2018, 7, 1))
 
     input_length = meta_info['seq_len']
     pred_length = meta_info['pred_len']
-
-    # if 'first_time' not in st.session_state:
-    #     st.session_state.first_time = True
-    #     selected_sub_frame = sub_frame(df=training_data,
-    #                                    start_date=start_time,
-    #                                    end_date=end_time)
-
-    # if st.button("Submit") or st.session_state.first_time:
-    #     if ("start_time" not in st.session_state or
-    #             "end_time" not in st.session_state or
-    #             st.session_state.start_time != start_time or
-    #             st.session_state.end_time != end_time):
-    #         st.session_state.time_range_changed = True
-    #     st.session_state.start_time = start_time
-    #     st.session_state.end_time = end_time
-    #     st.session_state.first_time = False
-    #
-    # if st.session_state.time_range_changed:
-    #     selected_sub_frame = sub_frame(df=training_data,
-    #                                    start_date=st.session_state.start_time,
-    #                                    end_date=st.session_state.end_time)
-    #     st.session_state.time_range_changed = True
 
     start_index = 0
     end_index = len(training_data) - (input_length + pred_length)
@@ -77,11 +53,6 @@ def live_calc_output(meta_info: dict, ml: ModelLoader, dpl: DataProviderLoader):
                              showlegend=True,
                              line=dict(color='blue')))
 
-    window_end_point = window_start_point + input_length
-    # update_fig_to_show_test(fig=fig,
-    #                         selected_sub_frame=selected_sub_frame,
-    #                         window_start_point=window_start_point,
-    #                         window_end_point=window_end_point)
     input_for_test = selected_sub_frame.iloc[0:input_length + pred_length]  # data_x and data_y
 
     if st.button("calculate"):
