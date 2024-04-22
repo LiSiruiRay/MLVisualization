@@ -105,6 +105,7 @@ def update_fig_to_show_pred_detailed(window_start_point: int,
                                      selected_sub_frame: pd.DataFrame, fig,
                                      input_data: pd.DataFrame,
                                      ml: ModelLoader, dpl: DataProviderLoader):
+    return
     pred = ml.predict(input_data=input_data, dpl=dpl)
     pred_series = pd.Series(pred.flatten())
     prediction_dates = selected_sub_frame['date'][window_start_point + seq_len: window_start_point + seq_len + pred_len]
