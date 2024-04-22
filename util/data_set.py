@@ -22,6 +22,12 @@ def read_training_ds_by_meta(meta_info: dict, root_path: str = None):
     return read_training_ds(meta_info["dataset_id"], root_path)
 
 
+def sub_frame_by_index(df, start_idx: int, end_idx: int):
+    # Use the indices to slice the DataFrame
+    filtered_df = df.iloc[start_idx:end_idx]
+    return filtered_df
+
+
 def sub_frame(df, start_date: str, end_date: str):  # df must be sorted
     df['date'] = pd.to_datetime(df['date'])
 
@@ -29,9 +35,7 @@ def sub_frame(df, start_date: str, end_date: str):  # df must be sorted
     start_idx = df['date'].searchsorted(pd.to_datetime(start_date), side='left')
     end_idx = df['date'].searchsorted(pd.to_datetime(end_date), side='right')
 
-    # Use the indices to slice the DataFrame
-    filtered_df = df.iloc[start_idx:end_idx]
-    return filtered_df
+    return sub_frame_by_index(df, start_idx, end_idx)
 
 
 def concat_time_series(df_stamp: pd.DataFrame, n: int, freq="15T") -> pd.DataFrame:

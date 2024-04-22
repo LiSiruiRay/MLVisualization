@@ -19,7 +19,7 @@ import plotly.graph_objects as go
 import numpy as np
 import streamlit as st
 
-from util.data_set import read_training_ds_by_meta, sub_frame
+from util.data_set import read_training_ds_by_meta, sub_frame, sub_frame_by_index
 
 import logging
 
@@ -29,33 +29,39 @@ logger = logging.getLogger(__name__)
 
 def live_calc_output(meta_info: dict, ml: ModelLoader, dpl: DataProviderLoader):
     training_data = read_training_ds_by_meta(meta_info=meta_info)
-    start_time = st.date_input("Enter start time", date(2016, 7, 1))
-    end_time = st.date_input("Enter end time", date(2018, 7, 1))
+    # start_time = st.date_input("Enter start time", date(2016, 7, 1))
+    # end_time = st.date_input("Enter end time", date(2018, 7, 1))
 
     input_length = meta_info['seq_len']
     pred_length = meta_info['pred_len']
 
-    if 'first_time' not in st.session_state:
-        st.session_state.first_time = True
-        selected_sub_frame = sub_frame(df=training_data,
-                                       start_date=start_time,
-                                       end_date=end_time)
+    # if 'first_time' not in st.session_state:
+    #     st.session_state.first_time = True
+    #     selected_sub_frame = sub_frame(df=training_data,
+    #                                    start_date=start_time,
+    #                                    end_date=end_time)
 
-    if st.button("Submit") or st.session_state.first_time:
-        if ("start_time" not in st.session_state or
-                "end_time" not in st.session_state or
-                st.session_state.start_time != start_time or
-                st.session_state.end_time != end_time):
-            st.session_state.time_range_changed = True
-        st.session_state.start_time = start_time
-        st.session_state.end_time = end_time
-        st.session_state.first_time = False
+    # if st.button("Submit") or st.session_state.first_time:
+    #     if ("start_time" not in st.session_state or
+    #             "end_time" not in st.session_state or
+    #             st.session_state.start_time != start_time or
+    #             st.session_state.end_time != end_time):
+    #         st.session_state.time_range_changed = True
+    #     st.session_state.start_time = start_time
+    #     st.session_state.end_time = end_time
+    #     st.session_state.first_time = False
+    #
+    # if st.session_state.time_range_changed:
+    #     selected_sub_frame = sub_frame(df=training_data,
+    #                                    start_date=st.session_state.start_time,
+    #                                    end_date=st.session_state.end_time)
+    #     st.session_state.time_range_changed = True
 
-    if st.session_state.time_range_changed:
-        selected_sub_frame = sub_frame(df=training_data,
-                                       start_date=st.session_state.start_time,
-                                       end_date=st.session_state.end_time)
-        st.session_state.time_range_changed = True
+    start_index = 0
+    end_index = len(training_data) - (input_length + pred_length)
+    window_start_point = st.slider('Select input data: ', start_index, end_index)
+    selected_sub_frame = sub_frame_by_index(df=training_data, start_idx=window_start_point,
+                                            end_idx=window_start_point + int((input_length + pred_length) * 1.5))
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=selected_sub_frame["date"],
                              y=selected_sub_frame["OT"],
@@ -64,18 +70,22 @@ def live_calc_output(meta_info: dict, ml: ModelLoader, dpl: DataProviderLoader):
                              showlegend=True,
                              line=dict(color='black')))
 
-    start_index = 0
-    end_index = len(selected_sub_frame) - (input_length + pred_length)
-    window_start_point = st.slider('Test data index', start_index, end_index)
+    fig.add_trace(go.Scatter(x=selected_sub_frame["date"][:input_length],
+                             y=selected_sub_frame["OT"],
+                             mode='lines',
+                             name='Input Data',
+                             showlegend=True,
+                             line=dict(color='blue')))
+
     window_end_point = window_start_point + input_length
-    update_fig_to_show_test(fig=fig,
-                            selected_sub_frame=selected_sub_frame,
-                            window_start_point=window_start_point,
-                            window_end_point=window_end_point)
-    input_for_test = selected_sub_frame.iloc[window_start_point:window_end_point]  # data_x and data_y
+    # update_fig_to_show_test(fig=fig,
+    #                         selected_sub_frame=selected_sub_frame,
+    #                         window_start_point=window_start_point,
+    #                         window_end_point=window_end_point)
+    input_for_test = selected_sub_frame.iloc[0:input_length + pred_length]  # data_x and data_y
 
     if st.button("calculate"):
-        update_fig_to_show_pred_meta_info(window_start_point=window_start_point,
+        update_fig_to_show_pred_meta_info(window_start_point=0,
                                           meta_info=meta_info,
                                           selected_sub_frame=selected_sub_frame,
                                           fig=fig,
@@ -105,7 +115,7 @@ def update_fig_to_show_pred_detailed(window_start_point: int,
                                      selected_sub_frame: pd.DataFrame, fig,
                                      input_data: pd.DataFrame,
                                      ml: ModelLoader, dpl: DataProviderLoader):
-    return
+    # return
     pred = ml.predict(input_data=input_data, dpl=dpl)
     pred_series = pd.Series(pred.flatten())
     prediction_dates = selected_sub_frame['date'][window_start_point + seq_len: window_start_point + seq_len + pred_len]
@@ -116,13 +126,13 @@ def update_fig_to_show_pred_detailed(window_start_point: int,
         x=prediction_dates,
         y=prediction_values,
         mode='lines',
-        # name='Predicted Data',
+        name='Predicted Data',
         line=dict(color='orange')
     ))
     fig.update_layout(
         title='Time Series Plot with Selection Window',
         # yaxis=dict(range=[-500, 500]),
-        xaxis=dict(range=[f"{st.session_state.start_time}", f"{st.session_state.end_time}"]),
+        # xaxis=dict(range=[f"{st.session_state.start_time}", f"{st.session_state.end_time}"]),
     )
 
 
@@ -153,7 +163,7 @@ def update_fig_to_show_test(fig, selected_sub_frame, window_start_point, window_
     fig.update_layout(
         title='Time Series Plot with Selection Window',
         # yaxis=dict(range=[-500, 500]),
-        xaxis=dict(range=[f"{st.session_state.start_time}", f"{st.session_state.end_time}"]),
+        # xaxis=dict(range=[f"{st.session_state.start_time}", f"{st.session_state.end_time}"]),
     )
 
 
