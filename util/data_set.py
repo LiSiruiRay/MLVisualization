@@ -105,7 +105,4 @@ def read_json_and_create_namespace(json_file_path: str):
         devices='0,1',
         dataset_id=data['dataset_id']
     )
-
-    # Optionally, you can print the namespace to verify it
-    print(namespace)
     return namespace

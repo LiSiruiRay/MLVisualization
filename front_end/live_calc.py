@@ -6,7 +6,13 @@ import sys
 import os.path
 from datetime import date
 
+import pandas as pd
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
+
+from util.model_until.data_provider_loader import DataProviderLoader
+from util.model_until.model_loader import ModelLoader
+
 from util.common import get_proje_root_path
 
 import plotly.graph_objects as go
@@ -21,7 +27,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 
-def live_calc_output(meta_info: dict, model):
+def live_calc_output(meta_info: dict, ml: ModelLoader, dpl: DataProviderLoader):
     training_data = read_training_ds_by_meta(meta_info=meta_info)
     start_time = st.date_input("Enter start time", date(2016, 7, 1))
     end_time = st.date_input("Enter end time", date(2018, 7, 1))
@@ -50,7 +56,13 @@ def live_calc_output(meta_info: dict, model):
                                        start_date=st.session_state.start_time,
                                        end_date=st.session_state.end_time)
         st.session_state.time_range_changed = True
-    fig = go.Figure(data=go.Scatter(x=selected_sub_frame["date"], y=selected_sub_frame["OT"], mode='lines'))
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=selected_sub_frame["date"],
+                             y=selected_sub_frame["OT"],
+                             mode='lines',
+                             name='whole dataset',
+                             showlegend=True,
+                             line=dict(color='black')))
 
     start_index = 0
     end_index = len(selected_sub_frame) - (input_length + pred_length)
@@ -60,11 +72,57 @@ def live_calc_output(meta_info: dict, model):
                             selected_sub_frame=selected_sub_frame,
                             window_start_point=window_start_point,
                             window_end_point=window_end_point)
-    input_for_test = selected_sub_frame.iloc[window_start_point:window_end_point] # data_x and data_y
-    # print(input_for_test["OT"])
-    print(type(input_for_test["OT"]))
+    input_for_test = selected_sub_frame.iloc[window_start_point:window_end_point]  # data_x and data_y
+
+    if st.button("calculate"):
+        update_fig_to_show_pred_meta_info(window_start_point=window_start_point,
+                                          meta_info=meta_info,
+                                          selected_sub_frame=selected_sub_frame,
+                                          fig=fig,
+                                          input_data=input_for_test,
+                                          ml=ml,
+                                          dpl=dpl)
 
     st.plotly_chart(fig)
+
+
+def update_fig_to_show_pred_meta_info(window_start_point: int,
+                                      meta_info: dict,
+                                      selected_sub_frame: pd.DataFrame,
+                                      fig,
+                                      input_data: pd.DataFrame,
+                                      ml: ModelLoader, dpl: DataProviderLoader):
+    update_fig_to_show_pred_detailed(window_start_point=window_start_point,
+                                     seq_len=meta_info["seq_len"],
+                                     pred_len=meta_info["pred_len"],
+                                     selected_sub_frame=selected_sub_frame,
+                                     fig=fig, input_data=input_data,
+                                     ml=ml, dpl=dpl)
+
+
+def update_fig_to_show_pred_detailed(window_start_point: int,
+                                     seq_len: int, pred_len: int,
+                                     selected_sub_frame: pd.DataFrame, fig,
+                                     input_data: pd.DataFrame,
+                                     ml: ModelLoader, dpl: DataProviderLoader):
+    pred = ml.predict(input_data=input_data, dpl=dpl)
+    pred_series = pd.Series(pred.flatten())
+    prediction_dates = selected_sub_frame['date'][window_start_point + seq_len: window_start_point + seq_len + pred_len]
+    prediction_values = pred_series.values
+
+    # Trace for the prediction data
+    fig.add_trace(go.Scatter(
+        x=prediction_dates,
+        y=prediction_values,
+        mode='lines',
+        # name='Predicted Data',
+        line=dict(color='orange')
+    ))
+    fig.update_layout(
+        title='Time Series Plot with Selection Window',
+        # yaxis=dict(range=[-500, 500]),
+        xaxis=dict(range=[f"{st.session_state.start_time}", f"{st.session_state.end_time}"]),
+    )
 
 
 def update_fig_to_show_test(fig, selected_sub_frame, window_start_point, window_end_point):
@@ -88,7 +146,8 @@ def update_fig_to_show_test(fig, selected_sub_frame, window_start_point, window_
                   x1=selected_sub_frame.iloc[window_end_point]["date"],
                   y1=max(selected_sub_frame["OT"]),
                   line=dict(color="RoyalBlue", width=0),
-                  fillcolor="LightSkyBlue", opacity=0.5)
+                  fillcolor="LightSkyBlue", opacity=0.5,
+                  name="selected part")
 
     fig.update_layout(
         title='Time Series Plot with Selection Window',
@@ -98,9 +157,10 @@ def update_fig_to_show_test(fig, selected_sub_frame, window_start_point, window_
 
 
 if __name__ == '__main__':
-    proje_root = get_proje_root_path()
-    meta_info_path = os.path.join(proje_root,
-                                  "hpc_sync_files/meta_info/model_meta_info/pure_sin_first_with_meta_script_20240330@03h10m11s_20240330@03h10m11s.json")
-    with open(meta_info_path, 'r') as f:
-        meta_info = json.load(f)
-    live_calc_output(meta_info, None)
+    print(f"hello")
+    model_id = "pure_sin_first_with_meta_script_20240330@03h10m11s_20240330@03h10m11s"
+    ml = ModelLoader(model_id=model_id)
+    ml.load_model()
+    dpl = DataProviderLoader(model_id=model_id)
+    dpl.load_load_data_provider()
+    live_calc_output(ml.meta_info, ml=ml, dpl=dpl)
