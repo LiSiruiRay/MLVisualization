@@ -128,11 +128,9 @@ def update_fig_to_show_test(fig, selected_sub_frame, window_start_point, window_
                   fillcolor="LightSkyBlue", opacity=0.5,
                   name="selected part")
 
-    fig.update_layout(
-        title='Time Series Plot with Selection Window',
-        # yaxis=dict(range=[-500, 500]),
-        # xaxis=dict(range=[f"{st.session_state.start_time}", f"{st.session_state.end_time}"]),
-    )
+    # fig.update_layout(
+    #     title='Time Series Plot with Selection Window',
+    # )
 
 
 if __name__ == '__main__':
