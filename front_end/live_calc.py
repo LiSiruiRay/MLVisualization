@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 
-def live_calc_output(meta_info: dict, ml: ModelLoader, dpl: DataProviderLoader):
+def live_calc_output(meta_info: dict, ml: ModelLoader, dpl: DataProviderLoader, fig):
     training_data = read_training_ds_by_meta(meta_info=meta_info)
 
     input_length = meta_info['seq_len']
@@ -36,7 +36,7 @@ def live_calc_output(meta_info: dict, ml: ModelLoader, dpl: DataProviderLoader):
     window_start_point = st.slider('Select input data: ', start_index, end_index)
     selected_sub_frame = sub_frame_by_index(df=training_data, start_idx=window_start_point,
                                             end_idx=window_start_point + int((input_length + pred_length) * 1.5))
-    fig = go.Figure()
+    # fig = go.Figure()
     fig.add_trace(go.Scatter(x=selected_sub_frame["date"],
                              y=selected_sub_frame["OT"],
                              mode='lines',
@@ -138,8 +138,12 @@ def update_fig_to_show_test(fig, selected_sub_frame, window_start_point, window_
 if __name__ == '__main__':
     print(f"hello")
     model_id = "pure_sin_first_with_meta_script_20240330@03h10m11s_20240330@03h10m11s"
+    fig = go.Figure()
+    fig.update_layout(
+        title='Time Series Plot with Selection Window',
+    )
     ml = ModelLoader(model_id=model_id)
     ml.load_model()
     dpl = DataProviderLoader(model_id=model_id)
     dpl.load_load_data_provider()
-    live_calc_output(ml.meta_info, ml=ml, dpl=dpl)
+    live_calc_output(ml.meta_info, ml=ml, dpl=dpl, fig=fig)

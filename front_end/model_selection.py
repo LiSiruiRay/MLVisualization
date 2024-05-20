@@ -21,7 +21,7 @@ def display_model_selection(model_names: list) -> list:
 
     # Display the currently selected models
     st.write("You have selected: ", selected_models)
-    logger.debug("Selected models: ", type(selected_models))
+    logger.debug(f"Selected models: {type(selected_models)}")
 
     return selected_models
 
