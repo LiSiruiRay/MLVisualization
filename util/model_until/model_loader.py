@@ -54,9 +54,9 @@ class ModelLoader:
 
         configs = read_json_and_create_namespace(json_file_path=self.model_meta_info_path)
         model = model_dict[model_name]
-        logger.debug("check if called Autocorrelation used 11111 ! ---")
+        logger.debug("check if called Autocorrelation used")
         self.loaded_model = model.Model(configs)
-        logger.debug("check if called Autocorrelation used ! ---")
+        logger.debug("check if called Autocorrelation used 2")
         self.loaded_model.load_state_dict(torch.load(model_check_point_path, map_location=device))
         self.device = device
 

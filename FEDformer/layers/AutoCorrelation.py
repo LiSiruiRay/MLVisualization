@@ -25,7 +25,6 @@ class AutoCorrelation(nn.Module):
     """
     def __init__(self, mask_flag=True, factor=1, scale=None, attention_dropout=0.1, output_attention=False, configs=None):
         super(AutoCorrelation, self).__init__()
-        print('Autocorrelation used !')
         self.factor = factor
         self.scale = scale
         self.mask_flag = mask_flag

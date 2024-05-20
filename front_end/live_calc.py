@@ -13,8 +13,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from util.model_until.data_provider_loader import DataProviderLoader
 from util.model_until.model_loader import ModelLoader
 
-from util.common import get_proje_root_path
-
 import plotly.graph_objects as go
 import numpy as np
 import streamlit as st
@@ -42,7 +40,7 @@ def live_calc_output(meta_info: dict, ml: ModelLoader, dpl: DataProviderLoader):
     fig.add_trace(go.Scatter(x=selected_sub_frame["date"],
                              y=selected_sub_frame["OT"],
                              mode='lines',
-                             name='whole dataset',
+                             name='Ground Truth',
                              showlegend=True,
                              line=dict(color='black')))
 
@@ -86,7 +84,6 @@ def update_fig_to_show_pred_detailed(window_start_point: int,
                                      selected_sub_frame: pd.DataFrame, fig,
                                      input_data: pd.DataFrame,
                                      ml: ModelLoader, dpl: DataProviderLoader):
-    # return
     pred = ml.predict(input_data=input_data, dpl=dpl)
     pred_series = pd.Series(pred.flatten())
     prediction_dates = selected_sub_frame['date'][window_start_point + seq_len: window_start_point + seq_len + pred_len]

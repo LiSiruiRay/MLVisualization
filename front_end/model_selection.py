@@ -1,13 +1,9 @@
-# Author: ray
-# Date: 3/24/24
-# Description:
-
-
 import streamlit as st
 import logging
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
 
 def initialize_state(keys_with_defaults):
     """Initialize Streamlit session state with default values for given keys"""
@@ -16,17 +12,18 @@ def initialize_state(keys_with_defaults):
             st.session_state[key] = default_value
 
 
-def display_model_selection(model_names: list) -> str:
-    # Use a select box for model selection
-    selected_model = st.selectbox('Select a Model:', model_names)
+def display_model_selection(model_names: list) -> list:
+    # Use a multi-select box for model selection
+    selected_models = st.multiselect('Select Model(s):', model_names, default=[])
 
-    # Update the selected model in the session state
-    st.session_state['selected_model'] = selected_model
+    # Update the selected models in the session state
+    st.session_state['selected_models'] = selected_models
 
-    # Display the currently selected model
-    st.write(f"You have selected: {selected_model}")
+    # Display the currently selected models
+    st.write("You have selected: ", selected_models)
+    logger.debug("Selected models: ", type(selected_models))
 
-    return selected_model
+    return selected_models
 
 
 if __name__ == "__main__":
@@ -34,7 +31,7 @@ if __name__ == "__main__":
     model_names = ['Model A', 'Model B', 'Model C']  # actual model names
 
     initialize_state({
-        'selected_model': None,
+        'selected_models': [],  # Default to an empty list
         'expanded': False
     })
 
