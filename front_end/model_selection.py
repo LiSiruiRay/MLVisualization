@@ -14,7 +14,7 @@ def initialize_state(keys_with_defaults):
 
 def display_model_selection(model_names: list) -> list:
     # Use a multi-select box for model selection
-    selected_models = st.multiselect('Select Model(s):', model_names, default=[])
+    selected_models = st.multiselect('Select Model(s):', model_names, default=None)
 
     # Update the selected models in the session state
     st.session_state['selected_models'] = selected_models

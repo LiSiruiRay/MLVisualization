@@ -49,6 +49,7 @@ class ModelLoader:
 
     # TODO: change the device to cuda
     def load_model(self, model_name: str = "Autoformer", device: torch.device = torch.device('cpu')):
+        logger.debug(f"Loading model {self.model_id}..")
         model_check_point_path = os.path.join(self.sync_file_path,
                                               f"checkpoints/{self.meta_info['model_name']}/checkpoint.pth")
 
@@ -140,10 +141,13 @@ class ModelLoader:
         return pred
 
     def predict(self, input_data: DataFrame, dpl: DataProviderLoader):
-        scaler = dpl.data_set.scaler
-        # TODO: might not be scaled, do this later
-        normalized_input = scaler.transform(input_data["OT"].values.reshape(-1, 1))
-
+        if hasattr(dpl, 'data_set'):
+            scaler = dpl.data_set.scaler
+            # TODO: might not be scaled, do this later
+            normalized_input = scaler.transform(input_data["OT"].values.reshape(-1, 1))
+        else:
+            normalized_input = input_data["OT"].values.reshape(-1, 1)
+            scaler = None
         df_raw = input_data
 
         df_stamp = df_raw[['date']]
@@ -173,4 +177,4 @@ class ModelLoader:
                                            label_len=self.meta_info['label_len'], )
 
         pred = pred.reshape((self.meta_info["pred_len"], 1))
-        return scaler.inverse_transform(pred)
+        return scaler.inverse_transform(pred) if scaler else pred

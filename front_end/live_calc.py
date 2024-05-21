@@ -27,7 +27,8 @@ logger = logging.getLogger(__name__)
 
 
 def live_calc_output(ml_list: List[ModelLoader], dpl_list: List[DataProviderLoader], fig):
-
+    print(f"check ml_list is null: {ml_list is None}")
+    print(f"check ml_list zero is null: {ml_list[0] is None}")
     meta_info = ml_list[0].meta_info
     training_data = read_training_ds_by_meta(meta_info=meta_info)
 
@@ -103,13 +104,10 @@ def update_fig_to_show_pred_detailed(window_start_point: int,
         x=prediction_dates,
         y=prediction_values,
         mode='lines',
-        name=f'Predicted Data Model: {model_number}',
-        line=dict(color='orange')
+        name=f'Predicted Data Model: {model_number}'
     ))
     fig.update_layout(
         title='Time Series Plot with Selection Window',
-        # yaxis=dict(range=[-500, 500]),
-        # xaxis=dict(range=[f"{st.session_state.start_time}", f"{st.session_state.end_time}"]),
     )
 
 

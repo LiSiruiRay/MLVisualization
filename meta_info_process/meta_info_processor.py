@@ -1,6 +1,7 @@
 # Author: ray
 # Date: 3/31/24
 # Description:
+import copy
 import json
 import os.path
 from typing import List
@@ -13,6 +14,7 @@ class MetaInfoProcessor:
     check_points_path: str
     datasets_info_path: str
     model_meta_info_path: str
+    model_meta_info_file_name_list: List[str]
     model_mate_info_list: list
 
     def __init__(self, file_path: str = None):
@@ -35,9 +37,19 @@ class MetaInfoProcessor:
             single_model_meta_info = json.load(f)
         return single_model_meta_info
 
+    def model_meta_info_valid(self, model_meta_info_path):
+        single_model_mata_info_path = os.path.join(self.model_meta_info_path, model_meta_info_path)
+        with open(single_model_mata_info_path, 'r') as f:
+            meta_info = json.load(f)
+        return os.path.exists(os.path.join(self.check_points_path, meta_info["model_name"], "checkpoint.pth"))
+
     def _load_all_model_info(self):
         # os.listdir(data_path)
         meta_info_path_list = os.listdir(self.model_meta_info_path)
+        meta_info_path_list = [m for m in meta_info_path_list if self.model_meta_info_valid(m)]
+
+        self.model_meta_info_file_name_list = copy.deepcopy(meta_info_path_list)
+        self.model_meta_info_file_name_list = [i.replace('.json', '') for i in self.model_meta_info_file_name_list]
         for each_model_meta_info in meta_info_path_list:
             single_model_mata_info_path = os.path.join(self.model_meta_info_path, each_model_meta_info)
             self.model_mate_info_list.append(MetaInfoProcessor._load_one_model_info(single_model_mata_info_path))
