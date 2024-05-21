@@ -141,7 +141,9 @@ class ModelLoader:
         return pred
 
     def predict(self, input_data: DataFrame, dpl: DataProviderLoader):
+        logger.debug(f"called predict function")
         if hasattr(dpl, 'data_set'):
+            logger.info(f"Model: {self.model_id} has dataset")
             scaler = dpl.data_set.scaler
             # TODO: might not be scaled, do this later
             normalized_input = scaler.transform(input_data["OT"].values.reshape(-1, 1))

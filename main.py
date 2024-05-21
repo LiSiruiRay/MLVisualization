@@ -15,8 +15,20 @@ import plotly.graph_objects as go
 from util.model_until.data_provider_loader import DataProviderLoader
 from util.model_until.model_loader import ModelLoader
 
+def display_selected_model_info(ml_list):
+    info_list = []
+    for i, m in enumerate(ml_list):
+        meta_info = m.meta_info
+        single_info_dict = {"seq_len": meta_info["seq_len"],
+                            "label_len": meta_info["label_len"],
+                            "pred_len": meta_info["pred_len"],
+                            "data_path": meta_info["data_path"],}
+        info_list.append(single_info_dict)
+
+    return info_list
 
 def main():
+    st.set_page_config(layout="wide")
     mip = MetaInfoProcessor()
 
     model_names = mip.model_meta_info_file_name_list
@@ -29,10 +41,12 @@ def main():
 
     selected_model = display_model_selection(model_names)
 
+
     fig = go.Figure()
 
     fig.update_layout(
         title='Time Series Plot with Selection Window',
+        width=1700, height=600
     )
 
     if selected_model:
@@ -44,15 +58,10 @@ def main():
         dpl_list = []
         for model_id in selected_model:
             d = DataProviderLoader(model_id=model_id)
+            d.load_load_data_provider()
             dpl_list.append(d)
-        dpl_list = [d.load_load_data_provider() for d in dpl_list]
-
+        st.write("selected", display_selected_model_info(ml_list=ml_list))
         live_calc_output(ml_list=ml_list, dpl_list=dpl_list, fig=fig)
-        # print(selected_model)
-        # refer to http://127.0.0.1:8889/lab/tree/visual_data_set.ipynb
-        # preds = np.load(os.path.join(proje_root, "hpc_sync_files/results", selected_model, 'pred.npy'))
-        # trues = np.load(os.path.join(proje_root, "hpc_sync_files/results", selected_model, 'true.npy'))
-        # show_test_data(preds, trues)
 
 
 if __name__ == '__main__':

@@ -142,9 +142,11 @@ if __name__ == '__main__':
     model_id_2 = "pure_sin_first_with_meta_script_20240401@03h16m24s_20240401@03h16m24s"
 
     fig = go.Figure()
+    st.set_page_config(layout="wide")
 
     fig.update_layout(
         title='Time Series Plot with Selection Window',
+        width=1700, height=600
     )
     ml = ModelLoader(model_id=model_id)
     ml_2 = ModelLoader(model_id=model_id_2)

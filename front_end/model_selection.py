@@ -20,7 +20,7 @@ def display_model_selection(model_names: list) -> list:
     st.session_state['selected_models'] = selected_models
 
     # Display the currently selected models
-    st.write("You have selected: ", selected_models)
+    # st.write("You have selected: ", selected_models)
     logger.debug(f"Selected models: {type(selected_models)}")
 
     return selected_models
