@@ -32,7 +32,6 @@ def main():
     mip = MetaInfoProcessor()
 
     model_names = mip.model_meta_info_file_name_list
-    proje_root = get_proje_root_path()
 
     initialize_state({
         'selected_model': None,

@@ -104,7 +104,7 @@ def update_fig_to_show_pred_detailed(window_start_point: int,
         x=prediction_dates,
         y=prediction_values,
         mode='lines',
-        name=f'Predicted Data Model: {model_number}'
+        name=f'{model_number} th Model'
     ))
     fig.update_layout(
         title='Time Series Plot with Selection Window',
