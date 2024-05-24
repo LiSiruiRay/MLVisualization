@@ -4,10 +4,13 @@
 import json
 import sys
 import os.path
+from collections import defaultdict
 from datetime import date
 from typing import List
 
 import pandas as pd
+import numpy as np
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
@@ -57,19 +60,39 @@ def live_calc_output(ml_list: List[ModelLoader], dpl_list: List[DataProviderLoad
 
     input_for_test = selected_sub_frame.iloc[0:input_length + pred_length]  # data_x and data_y
 
+    results = list()
+    metric_list = defaultdict(list)
     if st.button("calculate"):
         for i, ml in enumerate(ml_list):
             dpl = dpl_list[i]
-            update_fig_to_show_pred_meta_info(window_start_point=0,
-                                              meta_info=meta_info,
-                                              selected_sub_frame=selected_sub_frame,
-                                              fig=fig,
-                                              input_data=input_for_test,
-                                              ml=ml,
-                                              dpl=dpl,
-                                              model_number=i)
+            result = update_fig_to_show_pred_meta_info(window_start_point=0,
+                                                       meta_info=meta_info,
+                                                       selected_sub_frame=selected_sub_frame,
+                                                       fig=fig,
+                                                       input_data=input_for_test,
+                                                       ml=ml,
+                                                       dpl=dpl,
+                                                       model_number=i)
+            # results.append(result)
+            curr_input_len = ml.meta_info["seq_len"]
+            curr_pred_len = ml.meta_info["pred_len"]
+            ground_truth_output = selected_sub_frame.iloc[curr_input_len:curr_input_len + curr_pred_len]["OT"]
+            result_value = result[1]
+            logger.info(f"predict length: {curr_pred_len}, "
+                        f"ground_truth_output length: {len(ground_truth_output)}, "
+                        f"result_value length: {len(result_value)}")
+
+            mae = mean_absolute_error(ground_truth_output, result_value)
+            mse = mean_squared_error(ground_truth_output, result_value)
+            rmse = np.sqrt(mse)
+            metric_list["mae"] = mae
+            metric_list["mse"] = mse
+            metric_list["rmse"] = rmse
 
     st.plotly_chart(fig)
+    st.write('metric: ', metric_list)
+
+
 
 
 def update_fig_to_show_pred_meta_info(window_start_point: int,
@@ -79,13 +102,13 @@ def update_fig_to_show_pred_meta_info(window_start_point: int,
                                       input_data: pd.DataFrame,
                                       ml: ModelLoader, dpl: DataProviderLoader,
                                       model_number):
-    update_fig_to_show_pred_detailed(window_start_point=window_start_point,
-                                     seq_len=meta_info["seq_len"],
-                                     pred_len=meta_info["pred_len"],
-                                     selected_sub_frame=selected_sub_frame,
-                                     fig=fig, input_data=input_data,
-                                     ml=ml, dpl=dpl,
-                                     model_number=model_number)
+    return update_fig_to_show_pred_detailed(window_start_point=window_start_point,
+                                            seq_len=meta_info["seq_len"],
+                                            pred_len=meta_info["pred_len"],
+                                            selected_sub_frame=selected_sub_frame,
+                                            fig=fig, input_data=input_data,
+                                            ml=ml, dpl=dpl,
+                                            model_number=model_number)
 
 
 def update_fig_to_show_pred_detailed(window_start_point: int,
@@ -109,6 +132,7 @@ def update_fig_to_show_pred_detailed(window_start_point: int,
     fig.update_layout(
         title='Time Series Plot with Selection Window',
     )
+    return [prediction_dates, prediction_values]
 
 
 def update_fig_to_show_test(fig, selected_sub_frame, window_start_point, window_end_point):
