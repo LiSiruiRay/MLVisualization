@@ -1,6 +1,7 @@
 # Author: ray
 # Date: 4/18/24
 # Description:
+import copy
 import json
 import sys
 import os.path
@@ -61,7 +62,7 @@ def live_calc_output(ml_list: List[ModelLoader], dpl_list: List[DataProviderLoad
     input_for_test = selected_sub_frame.iloc[0:input_length + pred_length]  # data_x and data_y
 
     results = list()
-    metric_list = defaultdict(list)
+    metric_list = dict()
     if st.button("calculate"):
         for i, ml in enumerate(ml_list):
             dpl = dpl_list[i]
@@ -88,9 +89,11 @@ def live_calc_output(ml_list: List[ModelLoader], dpl_list: List[DataProviderLoad
             metric_list["mae"] = mae
             metric_list["mse"] = mse
             metric_list["rmse"] = rmse
+            logger.info(metric_list)
+            results.append(copy.deepcopy(metric_list))
 
     st.plotly_chart(fig)
-    st.write('metric: ', metric_list)
+    st.write('metric: ', results)
 
 
 

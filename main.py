@@ -19,7 +19,8 @@ def display_selected_model_info(ml_list):
     info_list = []
     for i, m in enumerate(ml_list):
         meta_info = m.meta_info
-        single_info_dict = {"seq_len": meta_info["seq_len"],
+        single_info_dict = {"model name": meta_info["model"],
+                            "seq_len": meta_info["seq_len"],
                             "label_len": meta_info["label_len"],
                             "pred_len": meta_info["pred_len"],
                             "data_path": meta_info["data_path"],}
